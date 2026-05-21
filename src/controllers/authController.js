@@ -74,85 +74,245 @@ const showProfile = async (req, res) => {
     return res.render('profile', {
       user,
       error: null,
-      message: null
+      errorProfile: null,
+      errorPassword: null,
+      messageProfile: null,
+      messagePassword: null
     });
   } catch (error) {
     console.error('Error al cargar perfil:', error);
-    return res.render('profile', { error: 'Error al cargar perfil', message: null, user: null });
+    return res.render('profile', {
+      error: 'Error al cargar perfil',
+      errorProfile: null,
+      errorPassword: null,
+      messageProfile: null,
+      messagePassword: null,
+      user: null
+    });
   }
 };
 
 // Actualizar perfil
 const updateProfile = async (req, res) => {
   try {
-    const { nombre, email, telefono } = req.body;
+    const { nombre, email, telefono, currentPassword, newPassword, confirmNewPassword } = req.body;
     const userId = req.session.userId;
 
+    const hasPasswordFields = Object.prototype.hasOwnProperty.call(req.body, 'currentPassword') ||
+      Object.prototype.hasOwnProperty.call(req.body, 'newPassword') ||
+      Object.prototype.hasOwnProperty.call(req.body, 'confirmNewPassword');
+    const hasProfileFields = Object.prototype.hasOwnProperty.call(req.body, 'nombre') ||
+      Object.prototype.hasOwnProperty.call(req.body, 'email') ||
+      Object.prototype.hasOwnProperty.call(req.body, 'telefono');
+
+    // Si el usuario envía SOLO campos de contraseña (sin editar perfil), manejar solo el cambio de contraseña
+    if (hasPasswordFields && !hasProfileFields) {
+      const userWithPassword = await User.getUserByIdWithPassword(userId);
+
+      if (!currentPassword || !newPassword || !confirmNewPassword) {
+        const user = await User.getUserById(userId);
+        return res.render('profile', {
+          user,
+          error: null,
+          errorProfile: null,
+          errorPassword: 'Todos los campos de contraseña son obligatorios',
+          messageProfile: null,
+          messagePassword: null
+        });
+      }
+
+      if (newPassword !== confirmNewPassword) {
+        const user = await User.getUserById(userId);
+        return res.render('profile', {
+          user,
+          error: null,
+          errorProfile: null,
+          errorPassword: 'Las nuevas contraseñas no coinciden',
+          messageProfile: null,
+          messagePassword: null
+        });
+      }
+
+      // Verificar contraseña actual
+      const isValid = await User.verifyPassword(currentPassword, userWithPassword.password);
+      if (!isValid) {
+        const user = await User.getUserById(userId);
+        return res.render('profile', {
+          user,
+          error: null,
+          errorProfile: null,
+          errorPassword: 'Contraseña actual incorrecta',
+          messageProfile: null,
+          messagePassword: null
+        });
+      }
+
+      // Validación mínima de seguridad
+      if (newPassword.length < 8) {
+        const user = await User.getUserById(userId);
+        return res.render('profile', {
+          user,
+          error: null,
+          errorProfile: null,
+          errorPassword: 'La nueva contraseña debe tener al menos 8 caracteres',
+          messageProfile: null,
+          messagePassword: null
+        });
+      }
+
+      const isSameAsCurrent = await User.verifyPassword(newPassword, userWithPassword.password);
+      if (isSameAsCurrent) {
+        const user = await User.getUserById(userId);
+        return res.render('profile', {
+          user,
+          error: null,
+          errorProfile: null,
+          errorPassword: 'La nueva contraseña no puede ser igual a la actual',
+          messageProfile: null,
+          messagePassword: null
+        });
+      }
+
+      await User.updateUserPassword(userId, newPassword);
+      const updatedUser = await User.getUserById(userId);
+      return res.render('profile', {
+        user: updatedUser,
+        error: null,
+        errorProfile: null,
+        errorPassword: null,
+        messageProfile: null,
+        messagePassword: 'Contraseña actualizada correctamente'
+      });
+    }
+
+    // Si llega aquí, se espera que el usuario esté editando el perfil (con o sin cambio de contraseña)
     if (!nombre || !email) {
       const user = await User.getUserById(userId);
-      return res.render('profile', { error: 'El nombre y email son obligatorios', message: null, user });
+      return res.render('profile', {
+        user,
+        error: null,
+        errorProfile: 'El nombre y email son obligatorios',
+        errorPassword: null,
+        messageProfile: null,
+        messagePassword: null
+      });
     }
 
     const existingUser = await User.getUserByEmail(email);
     if (existingUser && existingUser.id !== userId) {
       const user = await User.getUserById(userId);
-      return res.render('profile', { error: 'El email ya está en uso', message: null, user });
+      return res.render('profile', {
+        user,
+        error: null,
+        errorProfile: 'El email ya está en uso',
+        errorPassword: null,
+        messageProfile: null,
+        messagePassword: null
+      });
     }
 
     await User.updateUserProfile(userId, nombre, email, telefono);
     req.session.userName = nombre;
 
+    // Si se enviaron campos de contraseña, procesarlos
+    if (currentPassword || newPassword || confirmNewPassword) {
+      const userWithPassword = await User.getUserByIdWithPassword(userId);
+      if (!currentPassword || !newPassword || !confirmNewPassword) {
+        const updatedUser = await User.getUserById(userId);
+        return res.render('profile', {
+          user: updatedUser,
+          error: null,
+          errorProfile: null,
+          errorPassword: 'Todos los campos de contraseña son obligatorios',
+          messageProfile: 'Perfil actualizado correctamente',
+          messagePassword: null
+        });
+      }
+
+      if (newPassword !== confirmNewPassword) {
+        const updatedUser = await User.getUserById(userId);
+        return res.render('profile', {
+          user: updatedUser,
+          error: null,
+          errorProfile: null,
+          errorPassword: 'Las nuevas contraseñas no coinciden',
+          messageProfile: 'Perfil actualizado correctamente',
+          messagePassword: null
+        });
+      }
+
+      // Verificar contraseña actual
+      const isValid = await User.verifyPassword(currentPassword, userWithPassword.password);
+      if (!isValid) {
+        const updatedUser = await User.getUserById(userId);
+        return res.render('profile', {
+          user: updatedUser,
+          error: null,
+          errorProfile: null,
+          errorPassword: 'Contraseña actual incorrecta',
+          messageProfile: 'Perfil actualizado correctamente',
+          messagePassword: null
+        });
+      }
+
+      // Validación mínima de seguridad
+      if (newPassword.length < 8) {
+        const updatedUser = await User.getUserById(userId);
+        return res.render('profile', {
+          user: updatedUser,
+          error: null,
+          errorProfile: null,
+          errorPassword: 'La nueva contraseña debe tener al menos 8 caracteres',
+          messageProfile: 'Perfil actualizado correctamente',
+          messagePassword: null
+        });
+      }
+
+      const isSameAsCurrent = await User.verifyPassword(newPassword, userWithPassword.password);
+      if (isSameAsCurrent) {
+        const updatedUser = await User.getUserById(userId);
+        return res.render('profile', {
+          user: updatedUser,
+          error: null,
+          errorProfile: null,
+          errorPassword: 'La nueva contraseña no puede ser igual a la actual',
+          messageProfile: 'Perfil actualizado correctamente',
+          messagePassword: null
+        });
+      }
+
+      await User.updateUserPassword(userId, newPassword);
+      const updatedUser = await User.getUserById(userId);
+      return res.render('profile', {
+        user: updatedUser,
+        error: null,
+        errorProfile: null,
+        errorPassword: null,
+        messageProfile: 'Perfil actualizado correctamente',
+        messagePassword: 'Contraseña actualizada correctamente'
+      });
+    }
+
     const updatedUser = await User.getUserById(userId);
-    return res.render('profile', { error: null, message: 'Perfil actualizado correctamente', user: updatedUser });
+    return res.render('profile', {
+      user: updatedUser,
+      error: null,
+      errorProfile: null,
+      errorPassword: null,
+      messageProfile: 'Perfil actualizado correctamente',
+      messagePassword: null
+    });
   } catch (error) {
     console.error('Error al actualizar perfil:', error);
     const user = await User.getUserById(req.session.userId);
-    return res.render('profile', { error: 'Error al actualizar perfil', message: null, user });
-  }
-};
-
-// Mostrar formulario de cambio de contraseña
-const showChangePassword = async (req, res) => {
-  try {
-    const user = await User.getUserById(req.session.userId);
-    return res.render('change-password', { error: null, message: null, user });
-  } catch (error) {
-    console.error('Error al cargar cambio de contraseña:', error);
-    return res.render('change-password', { error: 'Error al cargar la página', message: null, user: null });
-  }
-};
-
-// Cambiar contraseña
-const changePassword = async (req, res) => {
-  try {
-    const { currentPassword, newPassword, confirmNewPassword } = req.body;
-    const userId = req.session.userId;
-    const user = await User.getUserByIdWithPassword(userId);
-
-    if (!currentPassword || !newPassword || !confirmNewPassword) {
-      return res.render('change-password', { error: 'Todos los campos son obligatorios', message: null, user });
-    }
-
-    if (newPassword !== confirmNewPassword) {
-      return res.render('change-password', { error: 'Las nuevas contraseñas no coinciden', message: null, user });
-    }
-
-    const isValid = await User.verifyPassword(currentPassword, user.password);
-    if (!isValid) {
-      return res.render('change-password', { error: 'Contraseña actual incorrecta', message: null, user });
-    }
-
-    const isSameAsCurrent = await User.verifyPassword(newPassword, user.password);
-    if (isSameAsCurrent) {
-      return res.render('change-password', { error: 'La nueva contraseña no puede ser igual a la actual', message: null, user });
-    }
-
-    await User.updateUserPassword(userId, newPassword);
-    return res.render('change-password', { error: null, message: 'Contraseña actualizada correctamente', user });
-  } catch (error) {
-    console.error('Error al cambiar contraseña:', error);
-    const user = await User.getUserById(req.session.userId);
-    return res.render('change-password', { error: 'Error al cambiar contraseña', message: null, user });
+    return res.render('profile', {
+      user,
+      error: 'Error al actualizar perfil',
+      errorProfile: null,
+      errorPassword: null,
+      messageProfile: null,
+      messagePassword: null
+    });
   }
 };
 
@@ -161,7 +321,5 @@ module.exports = {
   loginController,
   logoutController,
   showProfile,
-  updateProfile,
-  showChangePassword,
-  changePassword
+  updateProfile
 };

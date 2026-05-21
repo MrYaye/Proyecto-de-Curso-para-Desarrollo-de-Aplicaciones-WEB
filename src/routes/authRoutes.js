@@ -30,9 +30,7 @@ router.post('/login', isNotAuthenticated, authController.loginController);
 router.get('/profile', isAuthenticated, authController.showProfile);
 router.post('/profile', isAuthenticated, authController.updateProfile);
 
-// Cambiar contraseña
-router.get('/change-password', isAuthenticated, authController.showChangePassword);
-router.post('/change-password', isAuthenticated, authController.changePassword);
+// (Cambio de contraseña integrado en /profile)
 
 // Logout
 router.get('/logout', authController.logoutController);

@@ -13,10 +13,19 @@
     <div class="form-container">
       <h1>Mi Perfil</h1>
 
-      <% if (message) { %>
-        <div class="alert alert-success"><%= message %></div>
+      <% if (typeof messageProfile !== 'undefined' && messageProfile) { %>
+        <div class="alert alert-success"><%= messageProfile %></div>
       <% } %>
-      <% if (error) { %>
+      <% if (typeof messagePassword !== 'undefined' && messagePassword) { %>
+        <div class="alert alert-success"><%= messagePassword %></div>
+      <% } %>
+      <% if (typeof errorProfile !== 'undefined' && errorProfile) { %>
+        <div class="alert alert-danger"><%= errorProfile %></div>
+      <% } %>
+      <% if (typeof errorPassword !== 'undefined' && errorPassword) { %>
+        <div class="alert alert-danger"><%= errorPassword %></div>
+      <% } %>
+      <% if (typeof error !== 'undefined' && error) { %>
         <div class="alert alert-danger"><%= error %></div>
       <% } %>
 
@@ -38,9 +47,34 @@
 
         <div class="profile-buttons">
           <button type="submit" class="btn btn-primary">Guardar Cambios</button>
-          <a href="/reservations/my-reservations" class="btn btn-secondary">Volver a Mis Reservas</a>
         </div>
       </form>
+      
+        <hr style="margin: 2rem 0; border: none; border-top: 1px solid #eee;">
+
+        <div class="form-container">
+          <h2>Cambiar contraseña</h2>
+          <form method="POST" action="/profile" class="auth-form">
+            <div class="form-group">
+              <label for="currentPassword">Contraseña actual:</label>
+              <input type="password" id="currentPassword" name="currentPassword" autocomplete="current-password">
+            </div>
+
+            <div class="form-group">
+              <label for="newPassword">Nueva contraseña:</label>
+              <input type="password" id="newPassword" name="newPassword" autocomplete="new-password">
+            </div>
+
+            <div class="form-group">
+              <label for="confirmNewPassword">Confirmar nueva contraseña:</label>
+              <input type="password" id="confirmNewPassword" name="confirmNewPassword" autocomplete="new-password">
+            </div>
+
+            <div class="profile-buttons">
+              <button type="submit" class="btn btn-primary">Actualizar contraseña</button>
+            </div>
+          </form>
+        </div>
     </div>
   </div>
 
