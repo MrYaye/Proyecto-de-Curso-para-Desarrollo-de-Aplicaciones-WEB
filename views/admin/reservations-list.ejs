@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Gestionar Reservas</title>
+  <link rel="stylesheet" href="/css/style.css">
+</head>
+<body>
+  <%- include('../partials/navbar') %>
+
+  <div class="container">
+    <h1>Gestionar Reservas</h1>
+
+    <a href="/admin/dashboard" class="btn btn-secondary">Volver al Dashboard</a>
+
+    <% if (reservations.length > 0) { %>
+      <table class="table">
+        <thead>
+          <tr>
+            <th>Cliente</th>
+            <th>Email</th>
+            <th>Teléfono</th>
+            <th>Fecha</th>
+            <th>Hora</th>
+            <th>Mesa</th>
+            <th>Personas</th>
+            <th>Estado</th>
+            <th>Acciones</th>
+          </tr>
+        </thead>
+        <tbody>
+          <% reservations.forEach(reservation => { %>
+            <tr>
+              <td><%= reservation.nombre %></td>
+              <td><%= reservation.email %></td>
+              <td><%= reservation.telefono %></td>
+              <td><%= reservation.fecha_reserva.toISOString().split('T')[0] %></td>
+              <td><%= reservation.hora_reserva %></td>
+              <td><%= reservation.numero_mesa %></td>
+              <td><%= reservation.numero_personas %></td>
+              <td><span class="status-<%= reservation.estado %>"><%= reservation.estado %></span></td>
+              <td>
+                <% if (reservation.estado === 'pendiente') { %>
+                  <a href="/admin/reservations/confirm/<%= reservation.id %>" class="btn btn-small btn-success">Confirmar</a>
+                <% } %>
+                <% if (reservation.estado === 'confirmada') { %>
+                  <a href="/admin/reservations/complete/<%= reservation.id %>" class="btn btn-small btn-info">Completar</a>
+                <% } %>
+                <% if (reservation.estado !== 'cancelada' && reservation.estado !== 'completada') { %>
+                  <a href="/admin/reservations/cancel/<%= reservation.id %>" class="btn btn-small btn-danger" onclick="return confirm('¿Estás seguro?')">Cancelar</a>
+                <% } %>
+              </td>
+            </tr>
+          <% }); %>
+        </tbody>
+      </table>
+    <% } else { %>
+      <p>No hay reservas</p>
+    <% } %>
+  </div>
+
+  <footer>
+    <p>&copy; 2024 Sistema de Reservas - Todos los derechos reservados</p>
+  </footer>
+</body>
+</html>

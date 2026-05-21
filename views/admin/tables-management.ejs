@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Gestionar Mesas</title>
+  <link rel="stylesheet" href="/css/style.css">
+</head>
+<body>
+  <%- include('../partials/navbar') %>
+
+  <div class="container">
+    <h1>Gestionar Mesas</h1>
+
+    <a href="/admin/dashboard" class="btn btn-secondary">Volver al Dashboard</a>
+
+    <% if (tables.length > 0) { %>
+      <table class="table">
+        <thead>
+          <tr>
+            <th>Mesa Nº</th>
+            <th>Capacidad</th>
+            <th>Ubicación</th>
+            <th>Estado</th>
+          </tr>
+        </thead>
+        <tbody>
+          <% tables.forEach(table => { %>
+            <tr>
+              <td><%= table.numero_mesa %></td>
+              <td><%= table.capacidad %> personas</td>
+              <td><%= table.ubicacion || 'N/A' %></td>
+              <td><span class="status-<%= table.estado %>"><%= table.estado %></span></td>
+            </tr>
+          <% }); %>
+        </tbody>
+      </table>
+    <% } else { %>
+      <p>No hay mesas registradas</p>
+    <% } %>
+  </div>
+
+  <footer>
+    <p>&copy; 2024 Sistema de Reservas - Todos los derechos reservados</p>
+  </footer>
+</body>
+</html>

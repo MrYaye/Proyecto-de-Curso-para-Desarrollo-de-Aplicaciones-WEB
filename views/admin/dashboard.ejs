@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Panel de Administración</title>
+  <link rel="stylesheet" href="/css/style.css">
+</head>
+<body>
+  <%- include('../partials/navbar') %>
+
+  <div class="container">
+    <h1>Panel de Administración</h1>
+
+    <div class="admin-stats">
+      <div class="stat-card">
+        <h3>Reservas Recientes</h3>
+        <p class="stat-number"><%= reservations.length %></p>
+      </div>
+      <div class="stat-card">
+        <h3>Mesas Disponibles</h3>
+        <p class="stat-number"><%= tables.length %></p>
+      </div>
+      <div class="stat-card">
+        <h3>Total de Usuarios</h3>
+        <p class="stat-number"><%= users %></p>
+      </div>
+    </div>
+
+    <div class="admin-menu">
+      <a href="/admin/reservations" class="btn btn-primary">Gestionar Reservas</a>
+      <a href="/admin/tables" class="btn btn-primary">Gestionar Mesas</a>
+      <a href="/admin/reservations/by-date" class="btn btn-primary">Ver por Fecha</a>
+    </div>
+
+    <h2>Últimas Reservas</h2>
+    <% if (reservations.length > 0) { %>
+      <table class="table">
+        <thead>
+          <tr>
+            <th>Cliente</th>
+            <th>Fecha</th>
+            <th>Hora</th>
+            <th>Mesa</th>
+            <th>Personas</th>
+            <th>Estado</th>
+          </tr>
+        </thead>
+        <tbody>
+          <% reservations.forEach(reservation => { %>
+            <tr>
+              <td><%= reservation.nombre %></td>
+              <td><%= reservation.fecha_reserva.toISOString().split('T')[0] %></td>
+              <td><%= reservation.hora_reserva %></td>
+              <td><%= reservation.numero_mesa %></td>
+              <td><%= reservation.numero_personas %></td>
+              <td><span class="status-<%= reservation.estado %>"><%= reservation.estado %></span></td>
+            </tr>
+          <% }); %>
+        </tbody>
+      </table>
+    <% } else { %>
+      <p>No hay reservas</p>
+    <% } %>
+  </div>
+
+  <footer>
+    <p>&copy; 2024 Sistema de Reservas - Todos los derechos reservados</p>
+  </footer>
+</body>
+</html>

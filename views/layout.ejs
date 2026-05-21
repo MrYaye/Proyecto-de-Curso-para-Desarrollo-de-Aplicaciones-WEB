@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Sistema de Reservas - Restaurante</title>
+  <link rel="stylesheet" href="/css/style.css">
+</head>
+<body>
+  <nav class="navbar">
+    <div class="container">
+      <div class="navbar-brand">
+        <a href="/">🍽️ Restaurant Reservations</a>
+      </div>
+      <ul class="navbar-menu">
+        <% if (user) { %>
+          <li><span>Bienvenido, <%= user.nombre %></span></li>
+          <% if (user.rol === 'admin') { %>
+            <li><a href="/admin/dashboard">Panel Admin</a></li>
+          <% } else { %>
+            <li><a href="/reservations/new">Nueva Reserva</a></li>
+            <li><a href="/reservations/my-reservations">Mis Reservas</a></li>
+          <% } %>
+          <li><a href="/logout">Cerrar Sesión</a></li>
+        <% } else { %>
+          <li><a href="/login">Iniciar Sesión</a></li>
+          <li><a href="/register">Registrarse</a></li>
+        <% } %>
+      </ul>
+    </div>
+  </nav>
+</body>
+</html>

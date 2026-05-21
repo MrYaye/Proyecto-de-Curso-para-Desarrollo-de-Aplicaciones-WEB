@@ -1,0 +1,33 @@
+{
+  "name": "restaurant-reservation-system",
+  "version": "1.0.0",
+  "description": "Sistema de reservas para restaurante con Node.js, Express y MySQL",
+  "main": "src/index.js",
+  "scripts": {
+    "start": "node src/index.js",
+    "dev": "nodemon src/index.js",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [
+    "restaurant",
+    "reservations",
+    "nodejs",
+    "express",
+    "mysql"
+  ],
+  "author": "Tu Nombre",
+  "license": "ISC",
+  "dependencies": {
+    "express": "^4.18.2",
+    "mysql2": "^3.6.0",
+    "ejs": "^3.1.9",
+    "dotenv": "^16.3.1",
+    "bcrypt": "^5.1.0",
+    "express-session": "^1.17.3",
+    "express-validator": "^7.0.0",
+    "cookie-parser": "^1.4.6"
+  },
+  "devDependencies": {
+    "nodemon": "^3.0.1"
+  }
+}

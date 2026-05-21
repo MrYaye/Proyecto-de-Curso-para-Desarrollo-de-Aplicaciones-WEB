@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Inicio - Sistema de Reservas</title>
+  <link rel="stylesheet" href="/css/style.css">
+</head>
+<body>
+  <%- include('partials/navbar') %>
+
+  <div class="container">
+    <section class="hero">
+      <h1>Bienvenido a Nuestro Restaurante</h1>
+      <p>Reserva tu mesa de forma fácil y rápida</p>
+
+      <% if (!user) { %>
+        <div class="hero-buttons">
+          <a href="/login" class="btn btn-primary">Iniciar Sesión</a>
+          <a href="/register" class="btn btn-secondary">Registrarse</a>
+        </div>
+      <% } else { %>
+        <div class="hero-buttons">
+          <a href="/reservations/new" class="btn btn-primary">Nueva Reserva</a>
+          <a href="/reservations/my-reservations" class="btn btn-secondary">Ver Mis Reservas</a>
+        </div>
+      <% } %>
+    </section>
+
+    <section class="features">
+      <div class="feature-card">
+        <h3>⚡ Rápido y Fácil</h3>
+        <p>Haz reservas en segundos sin complicaciones</p>
+      </div>
+      <div class="feature-card">
+        <h3>🔒 Seguro</h3>
+        <p>Tus datos están protegidos con encriptación</p>
+      </div>
+      <div class="feature-card">
+        <h3>📱 Disponible</h3>
+        <p>Accede desde cualquier dispositivo</p>
+      </div>
+    </section>
+  </div>
+
+  <footer>
+    <p>&copy; 2024 Sistema de Reservas - Todos los derechos reservados</p>
+  </footer>
+</body>
+</html>

@@ -1,0 +1,119 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Editar Reserva</title>
+  <link rel="stylesheet" href="/css/style.css">
+</head>
+<body>
+  <%- include('../partials/navbar') %>
+
+  <div class="container">
+    <div class="form-container">
+      <h1>Editar Reserva</h1>
+
+      <% if (message) { %>
+        <div class="alert alert-success"><%= message %></div>
+      <% } %>
+      <% if (error) { %>
+        <div class="alert alert-danger"><%= error %></div>
+      <% } %>
+
+      <form method="POST" action="/reservations/edit/<%= reservation.id %>" class="reservation-form">
+        <div class="form-group">
+          <label for="fecha">Fecha de Reserva:</label>
+          <input type="date" id="fecha" name="fecha" value="<%= reservation.fecha_reserva.toISOString().split('T')[0] %>" required>
+        </div>
+
+        <div class="form-group">
+          <label for="hora">Hora de Reserva:</label>
+          <input type="time" id="hora" name="hora" value="<%= reservation.hora_reserva %>" required>
+        </div>
+
+        <div class="form-group">
+          <label for="personas">Número de Personas:</label>
+          <input type="number" id="personas" name="numPersonas" min="1" max="10" value="<%= reservation.numero_personas %>" required>
+        </div>
+
+        <div class="form-group" id="tablesContainer" style="display: none;">
+          <label for="mesa">Seleccionar Mesa:</label>
+          <select id="mesa" name="mesaId" required>
+            <option value="">Cargando mesas disponibles...</option>
+          </select>
+        </div>
+
+        <div class="form-group">
+          <label for="observaciones">Observaciones (Opcional):</label>
+          <textarea id="observaciones" name="observaciones" rows="4" placeholder="Preferencias especiales, alergias, etc."><%= reservation.observaciones || '' %></textarea>
+        </div>
+
+        <button type="submit" class="btn btn-primary">Guardar Cambios</button>
+        <a href="/reservations/my-reservations" class="btn btn-secondary">Volver a Mis Reservas</a>
+      </form>
+    </div>
+  </div>
+
+  <script>
+    const fechaInput = document.getElementById('fecha');
+    const horaInput = document.getElementById('hora');
+    const personasInput = document.getElementById('personas');
+    const mesaSelect = document.getElementById('mesa');
+    const tablesContainer = document.getElementById('tablesContainer');
+    const reservaId = '<%= reservation.id %>';
+    const currentMesaId = '<%= reservation.mesa_id %>';
+
+    const today = new Date().toISOString().split('T')[0];
+    fechaInput.setAttribute('min', today);
+
+    async function loadAvailableTables() {
+      if (!fechaInput.value || !horaInput.value || !personasInput.value) {
+        tablesContainer.style.display = 'none';
+        return;
+      }
+
+      try {
+        const response = await fetch(`/reservations/available?fecha=${fechaInput.value}&hora=${horaInput.value}&personas=${personasInput.value}&reservaId=${reservaId}`);
+        const tables = await response.json();
+
+        mesaSelect.innerHTML = '';
+        if (tables.length > 0) {
+          tables.forEach(table => {
+            const option = document.createElement('option');
+            option.value = table.id;
+            option.textContent = `Mesa ${table.numero_mesa} (Capacidad: ${table.capacidad})`;
+            if (String(table.id) === currentMesaId) {
+              option.selected = true;
+            }
+            mesaSelect.appendChild(option);
+          });
+          if (!mesaSelect.querySelector('option[selected]')) {
+            const option = document.createElement('option');
+            option.value = currentMesaId;
+            option.textContent = `Mesa actual ${currentMesaId}`;
+            option.selected = true;
+            mesaSelect.prepend(option);
+          }
+          tablesContainer.style.display = 'block';
+        } else {
+          mesaSelect.innerHTML = '<option value="">No hay mesas disponibles</option>';
+          tablesContainer.style.display = 'block';
+        }
+      } catch (error) {
+        console.error('Error:', error);
+        alert('Error al cargar las mesas disponibles');
+      }
+    }
+
+    fechaInput.addEventListener('change', loadAvailableTables);
+    horaInput.addEventListener('change', loadAvailableTables);
+    personasInput.addEventListener('change', loadAvailableTables);
+
+    window.addEventListener('load', loadAvailableTables);
+  </script>
+
+  <footer>
+    <p>&copy; 2024 Sistema de Reservas - Todos los derechos reservados</p>
+  </footer>
+</body>
+</html>

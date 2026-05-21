@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Mis Reservas</title>
+  <link rel="stylesheet" href="/css/style.css">
+</head>
+<body>
+  <%- include('../partials/navbar') %>
+
+  <div class="container">
+    <h1>Mis Reservas</h1>
+
+    <% if (message) { %>
+      <div class="alert alert-success"><%= message %></div>
+    <% } %>
+    <% if (error) { %>
+      <div class="alert alert-danger"><%= error %></div>
+    <% } %>
+
+    <a href="/reservations/new" class="btn btn-primary">Nueva Reserva</a>
+
+    <% if (reservations.length > 0) { %>
+      <table class="table">
+        <thead>
+          <tr>
+            <th>Fecha</th>
+            <th>Hora</th>
+            <th>Mesa</th>
+            <th>Personas</th>
+            <th>Estado</th>
+            <th>Acciones</th>
+          </tr>
+        </thead>
+        <tbody>
+          <% reservations.forEach(reservation => { %>
+            <tr>
+              <td><%= reservation.fecha_reserva.toISOString().split('T')[0] %></td>
+              <td><%= reservation.hora_reserva %></td>
+              <td><%= reservation.numero_mesa %></td>
+              <td><%= reservation.numero_personas %></td>
+              <td><span class="status-<%= reservation.estado %>"><%= reservation.estado %></span></td>
+              <td>
+                <% if (reservation.estado === 'pendiente' || reservation.estado === 'confirmada') { %>
+                  <a href="/reservations/edit/<%= reservation.id %>" class="btn btn-small btn-secondary">Editar</a>
+                  <a href="/reservations/cancel/<%= reservation.id %>" class="btn btn-small btn-danger" onclick="return confirm('¿Estás seguro de que quieres cancelar esta reserva?')">Cancelar</a>
+                <% } %>
+              </td>
+            </tr>
+          <% }); %>
+        </tbody>
+      </table>
+    <% } else { %>
+      <p>No tienes reservas. <a href="/reservations/new">Haz tu primera reserva</a></p>
+    <% } %>
+  </div>
+
+  <footer>
+    <p>&copy; 2024 Sistema de Reservas - Todos los derechos reservados</p>
+  </footer>
+</body>
+</html>

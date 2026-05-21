@@ -1,0 +1,24 @@
+<nav class="navbar">
+  <div class="container">
+    <div class="navbar-brand">
+      <a href="/">🍽️ Restaurant Reservations</a>
+    </div>
+    <ul class="navbar-menu">
+      <% if (user) { %>
+        <li><span class="user-greeting">Hola, <%= user.nombre %></span></li>
+        <% if (user.rol === 'admin') { %>
+          <li><a href="/admin/dashboard">Panel Admin</a></li>
+        <% } else { %>
+          <li><a href="/reservations/new">Nueva Reserva</a></li>
+          <li><a href="/reservations/my-reservations">Mis Reservas</a></li>
+        <% } %>
+        <li><a href="/profile">Mi Perfil</a></li>
+        <li><a href="/change-password">Cambiar Contraseña</a></li>
+        <li><a href="/logout" class="logout-btn">Cerrar Sesión</a></li>
+      <% } else { %>
+        <li><a href="/login">Iniciar Sesión</a></li>
+        <li><a href="/register">Registrarse</a></li>
+      <% } %>
+    </ul>
+  </div>
+</nav>
