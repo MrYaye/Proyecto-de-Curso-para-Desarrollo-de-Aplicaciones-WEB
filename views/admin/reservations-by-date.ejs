@@ -10,7 +10,16 @@
   <%- include('../partials/navbar') %>
 
   <div class="container">
-    <h1>Reservas por Fecha</h1>
+      <% function formatTime12(time) {
+        if (!time) return '';
+        const [hour, minute] = String(time).split(':');
+        let h = parseInt(hour, 10);
+        if (Number.isNaN(h)) return time;
+        const suffix = h >= 12 ? 'PM' : 'AM';
+        if (h === 0) h = 12;
+        else if (h > 12) h -= 12;
+        return `${h}:${minute} ${suffix}`;
+      } %>
 
     <a href="/admin/dashboard" class="btn btn-secondary">Volver al Dashboard</a>
 
@@ -23,8 +32,9 @@
     <h2>Reservas del <%= fecha %></h2>
 
     <% if (reservations.length > 0) { %>
-      <table class="table">
-        <thead>
+      <div class="table-responsive">
+        <table class="table">
+          <thead>
           <tr>
             <th>Cliente</th>
             <th>Email</th>
@@ -40,7 +50,7 @@
             <tr>
               <td><%= reservation.nombre %></td>
               <td><%= reservation.email %></td>
-              <td><%= reservation.hora_reserva %></td>
+              <td><%= formatTime12(reservation.hora_reserva) %></td>
               <td><%= reservation.numero_mesa %></td>
               <td><%= reservation.numero_personas %></td>
               <td><span class="status-<%= reservation.estado %>"><%= reservation.estado %></span></td>
@@ -52,7 +62,8 @@
             </tr>
           <% }); %>
         </tbody>
-      </table>
+        </table>
+      </div>
     <% } else { %>
       <p>No hay reservas para esta fecha</p>
     <% } %>

@@ -53,9 +53,58 @@ const getTableById = async (mesaId) => {
   }
 };
 
+// Actualizar mesa (capacidad, ubicación, número)
+const updateTable = async (mesaId, numeroMesa, capacidad, ubicacion) => {
+  const connection = await pool.getConnection();
+  try {
+    const [result] = await connection.query(`
+      UPDATE mesas SET numero_mesa = ?, capacidad = ?, ubicacion = ? WHERE id = ?
+    `, [numeroMesa, capacidad, ubicacion, mesaId]);
+    return result;
+  } finally {
+    connection.release();
+  }
+};
+
+// Eliminar mesa
+const deleteTable = async (mesaId) => {
+  const connection = await pool.getConnection();
+  try {
+    const [result] = await connection.query(`
+      DELETE FROM mesas WHERE id = ?
+    `, [mesaId]);
+    return result;
+  } finally {
+    connection.release();
+  }
+};
+
+// Obtener ocupación actual de cada mesa (para un día/hora específicos)
+const getTableOccupancy = async (fecha, hora) => {
+  const connection = await pool.getConnection();
+  try {
+    const [rows] = await connection.query(`
+      SELECT m.*, COUNT(r.id) as reservas_activas
+      FROM mesas m
+      LEFT JOIN reservas r ON m.id = r.mesa_id 
+        AND r.fecha_reserva = ? 
+        AND r.hora_reserva = ? 
+        AND r.estado IN ('pendiente', 'confirmada')
+      GROUP BY m.id
+      ORDER BY m.numero_mesa
+    `, [fecha, hora]);
+    return rows;
+  } finally {
+    connection.release();
+  }
+};
+
 module.exports = {
   getAllTables,
   createTable,
   updateTableStatus,
-  getTableById
+  getTableById,
+  updateTable,
+  deleteTable,
+  getTableOccupancy
 };

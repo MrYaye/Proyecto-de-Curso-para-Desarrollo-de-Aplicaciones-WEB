@@ -10,7 +10,16 @@
   <%- include('../partials/navbar') %>
 
   <div class="container">
-    <h1>Panel de Administración</h1>
+      <% function formatTime12(time) {
+        if (!time) return '';
+        const [hour, minute] = String(time).split(':');
+        let h = parseInt(hour, 10);
+        if (Number.isNaN(h)) return time;
+        const suffix = h >= 12 ? 'PM' : 'AM';
+        if (h === 0) h = 12;
+        else if (h > 12) h -= 12;
+        return `${h}:${minute} ${suffix}`;
+      } %>
 
     <div class="admin-stats">
       <div class="stat-card">
@@ -35,8 +44,9 @@
 
     <h2>Últimas Reservas</h2>
     <% if (reservations.length > 0) { %>
-      <table class="table">
-        <thead>
+      <div class="table-responsive">
+        <table class="table">
+          <thead>
           <tr>
             <th>Cliente</th>
             <th>Fecha</th>
@@ -51,21 +61,22 @@
             <tr>
               <td><%= reservation.nombre %></td>
               <td><%= reservation.fecha_reserva.toISOString().split('T')[0] %></td>
-              <td><%= reservation.hora_reserva %></td>
+              <td><%= formatTime12(reservation.hora_reserva) %></td>
               <td><%= reservation.numero_mesa %></td>
               <td><%= reservation.numero_personas %></td>
               <td><span class="status-<%= reservation.estado %>"><%= reservation.estado %></span></td>
             </tr>
           <% }); %>
         </tbody>
-      </table>
+        </table>
+      </div>
     <% } else { %>
       <p>No hay reservas</p>
     <% } %>
   </div>
 
   <footer>
-    <p>&copy; 2024 Sistema de Reservas - Todos los derechos reservados</p>
+    <p>&copy; 2026 Sistema de Reservas - Todos los derechos reservados</p>
   </footer>
 </body>
 </html>

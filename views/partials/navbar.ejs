@@ -1,9 +1,10 @@
 ﻿<nav class="navbar">
-  <div class="nav-left">
-    <a href="/" class="navbar-brand">🍽️ Restaurant Reservations</a>
-  </div>
+  <div class="container navbar-container">
+    <div class="nav-left">
+      <a href="/" class="navbar-brand">🍽️ Restaurant Reservations</a>
+    </div>
 
-  <div class="nav-center">
+    <div class="nav-center">
     <% if (user) { %>
       <span class="user-greeting">Hola, <%= user.nombre %></span>
       <% if (user.rol === 'admin') { %>
@@ -22,5 +23,10 @@
   <% if (user) { %>
     <a href="/logout" class="logout-btn">Cerrar Sesión</a>
   <% } %>
+  </div>
 </nav>
+
+<!-- Toast container (notificaciones) -->
+<div id="toastContainer" class="toast-container" aria-live="polite" aria-atomic="true"></div>
+<script src="/js/app.js"></script>
 

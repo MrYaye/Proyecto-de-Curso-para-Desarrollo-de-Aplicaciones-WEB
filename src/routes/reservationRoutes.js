@@ -21,6 +21,12 @@ router.post('/edit/:reservaId', isAuthenticated, reservationController.updateRes
 // Ver mis reservas
 router.get('/my-reservations', isAuthenticated, reservationController.getMyReservations);
 
+// Exportar reservas a CSV
+router.get('/export/csv', isAuthenticated, reservationController.exportReservationsCsv);
+
+// Generar PDF de una reserva
+router.get('/export/pdf/:reservaId', isAuthenticated, reservationController.exportReservationPdf);
+
 // Cancelar reserva
 router.get('/cancel/:reservaId', isAuthenticated, reservationController.cancelReservation);
 

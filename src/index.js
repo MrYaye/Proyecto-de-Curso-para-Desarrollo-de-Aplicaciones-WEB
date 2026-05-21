@@ -62,8 +62,8 @@ const startServer = async () => {
     // Inicializar base de datos
     await initializeDatabase();
     
-    // Escuchar en el puerto
-    app.listen(PORT, () => {
+    // Escuchar en el puerto en localhost
+    app.listen(PORT, 'localhost', () => {
       console.log(`✓ Servidor ejecutándose en http://localhost:${PORT}`);
     });
   } catch (error) {

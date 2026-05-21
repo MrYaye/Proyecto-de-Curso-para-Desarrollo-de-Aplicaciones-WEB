@@ -5,6 +5,14 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Gestionar Mesas</title>
   <link rel="stylesheet" href="/css/style.css">
+  <style>
+    .form-container { margin: 2rem 0; padding: 1.5rem; background: #f9f9f9; border-radius: 8px; }
+    .table-actions { display: flex; gap: 0.5rem; flex-wrap: wrap; }
+    .occupancy-badge { display: inline-block; padding: 0.25rem 0.75rem; border-radius: 12px; font-size: 0.85rem; font-weight: bold; }
+    .occupancy-free { background: #d4edda; color: #155724; }
+    .occupancy-partial { background: #fff3cd; color: #856404; }
+    .occupancy-full { background: #f8d7da; color: #721c24; }
+  </style>
 </head>
 <body>
   <%- include('../partials/navbar') %>
@@ -12,33 +20,132 @@
   <div class="container">
     <h1>Gestionar Mesas</h1>
 
+    <% if (message) { %>
+      <script>
+        document.addEventListener('DOMContentLoaded', function () {
+          if (typeof showSuccess === 'function') showSuccess(<%- JSON.stringify(message) %>);
+        });
+      </script>
+    <% } %>
+    <% if (error) { %>
+      <script>
+        (function () {
+          const message = <%- JSON.stringify(error) %>;
+          const display = () => { if (typeof showError === 'function') showError(message); };
+          if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', display);
+          else display();
+        })();
+      </script>
+    <% } %>
+
     <a href="/admin/dashboard" class="btn btn-secondary">Volver al Dashboard</a>
 
-    <% if (tables.length > 0) { %>
-      <table class="table">
-        <thead>
+    <!-- Formulario para crear nueva mesa -->
+    <div class="form-container">
+      <h2>Crear Nueva Mesa</h2>
+      <form method="POST" action="/admin/tables" class="auth-form">
+        <div class="form-group">
+          <label for="numeroMesa">Número de Mesa:</label>
+          <input type="number" id="numeroMesa" name="numeroMesa" min="1" required>
+        </div>
+        <div class="form-group">
+          <label for="capacidad">Capacidad (Personas):</label>
+          <input type="number" id="capacidad" name="capacidad" min="1" max="20" required>
+        </div>
+        <div class="form-group">
+          <label for="ubicacion">Ubicación (Opcional):</label>
+          <input type="text" id="ubicacion" name="ubicacion" placeholder="Ej: Ventana, Rincón, Terraza">
+        </div>
+        <button type="submit" class="btn btn-primary">Crear Mesa</button>
+      </form>
+    </div>
+
+    <!-- Listado de mesas -->
+    <h2>Mesas Registradas</h2>
+    <% if (tables && tables.length > 0) { %>
+      <div class="table-responsive">
+        <table class="table">
+          <thead>
           <tr>
             <th>Mesa Nº</th>
             <th>Capacidad</th>
             <th>Ubicación</th>
+            <th>Ocupación Hoy</th>
             <th>Estado</th>
+            <th>Acciones</th>
           </tr>
         </thead>
         <tbody>
-          <% tables.forEach(table => { %>
+          <% tables.forEach(table => {
+            let occupancyClass = 'occupancy-free';
+            if (table.reservas_activas >= table.capacidad) occupancyClass = 'occupancy-full';
+            else if (table.reservas_activas > 0) occupancyClass = 'occupancy-partial';
+          %>
             <tr>
-              <td><%= table.numero_mesa %></td>
+              <td><strong><%= table.numero_mesa %></strong></td>
               <td><%= table.capacidad %> personas</td>
-              <td><%= table.ubicacion || 'N/A' %></td>
+              <td><%= table.ubicacion || '-' %></td>
+              <td>
+                <span class="occupancy-badge <%= occupancyClass %>">
+                  <%= table.reservas_activas %>/<%= table.capacidad %>
+                </span>
+              </td>
               <td><span class="status-<%= table.estado %>"><%= table.estado %></span></td>
+              <td>
+                <div class="table-actions">
+                  <button class="btn btn-small btn-secondary" onclick="editTable(<%= table.id %>, <%= table.numero_mesa %>, <%= table.capacidad %>, '<%= table.ubicacion || '' %>')">Editar</button>
+                  <a href="/admin/tables/delete/<%= table.id %>" class="btn btn-small btn-danger" onclick="return confirm('¿Eliminar esta mesa?')">Eliminar</a>
+                </div>
+              </td>
             </tr>
           <% }); %>
         </tbody>
-      </table>
+        </table>
+      </div>
     <% } else { %>
       <p>No hay mesas registradas</p>
     <% } %>
+
+    <!-- Modal/Formulario de edición (inline) -->
+    <div id="editForm" class="form-container" style="display: none; margin-top: 2rem;">
+      <h2>Editar Mesa</h2>
+      <form method="POST" action="" id="editFormElement" class="auth-form">
+        <input type="hidden" id="editMesaId" name="mesaId">
+        <div class="form-group">
+          <label for="editNumeroMesa">Número de Mesa:</label>
+          <input type="number" id="editNumeroMesa" name="numeroMesa" min="1" required>
+        </div>
+        <div class="form-group">
+          <label for="editCapacidad">Capacidad (Personas):</label>
+          <input type="number" id="editCapacidad" name="capacidad" min="1" max="20" required>
+        </div>
+        <div class="form-group">
+          <label for="editUbicacion">Ubicación (Opcional):</label>
+          <input type="text" id="editUbicacion" name="ubicacion">
+        </div>
+        <div class="button-group">
+          <button type="submit" class="btn btn-primary">Guardar Cambios</button>
+          <button type="button" class="btn btn-secondary" onclick="cancelEdit()">Cancelar</button>
+        </div>
+      </form>
+    </div>
   </div>
+
+  <script>
+    function editTable(mesaId, numeroMesa, capacidad, ubicacion) {
+      document.getElementById('editMesaId').value = mesaId;
+      document.getElementById('editNumeroMesa').value = numeroMesa;
+      document.getElementById('editCapacidad').value = capacidad;
+      document.getElementById('editUbicacion').value = ubicacion || '';
+      document.getElementById('editFormElement').action = `/admin/tables/${mesaId}`;
+      document.getElementById('editForm').style.display = 'block';
+      window.scrollTo({ top: document.getElementById('editForm').offsetTop, behavior: 'smooth' });
+    }
+
+    function cancelEdit() {
+      document.getElementById('editForm').style.display = 'none';
+    }
+  </script>
 
   <footer>
     <p>&copy; 2024 Sistema de Reservas - Todos los derechos reservados</p>

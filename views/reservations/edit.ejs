@@ -14,21 +14,34 @@
       <h1>Editar Reserva</h1>
 
       <% if (message) { %>
-        <div class="alert alert-success"><%= message %></div>
+        <script>
+          document.addEventListener('DOMContentLoaded', function () {
+            if (typeof showSuccess === 'function') showSuccess(<%- JSON.stringify(message) %>);
+          });
+        </script>
       <% } %>
       <% if (error) { %>
-        <div class="alert alert-danger"><%= error %></div>
+        <script>
+          (function () {
+            const message = <%- JSON.stringify(error) %>;
+            const display = () => { if (typeof showError === 'function') showError(message); };
+            if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', display);
+            else display();
+          })();
+        </script>
       <% } %>
 
-      <form method="POST" action="/reservations/edit/<%= reservation.id %>" class="reservation-form">
+      <form method="POST" action="/reservations/edit/<%= reservation.id %>" class="reservation-form" id="reservationForm">
         <div class="form-group">
           <label for="fecha">Fecha de Reserva:</label>
           <input type="date" id="fecha" name="fecha" value="<%= reservation.fecha_reserva.toISOString().split('T')[0] %>" required>
+          <span class="form-note">Selecciona la fecha con el calendario.</span>
         </div>
 
         <div class="form-group">
           <label for="hora">Hora de Reserva:</label>
           <input type="time" id="hora" name="hora" value="<%= reservation.hora_reserva %>" required>
+          <span class="form-note">Elige la hora y luego selecciona la mesa disponible.</span>
         </div>
 
         <div class="form-group">
@@ -60,6 +73,7 @@
     const personasInput = document.getElementById('personas');
     const mesaSelect = document.getElementById('mesa');
     const tablesContainer = document.getElementById('tablesContainer');
+    const reservationForm = document.getElementById('reservationForm');
     const reservaId = '<%= reservation.id %>';
     const currentMesaId = '<%= reservation.mesa_id %>';
 
@@ -101,13 +115,29 @@
         }
       } catch (error) {
         console.error('Error:', error);
-        alert('Error al cargar las mesas disponibles');
+        if (typeof showError === 'function') showError('Error al cargar las mesas disponibles');
+        else alert('Error al cargar las mesas disponibles');
       }
+    }
+
+    function validateReservationForm(event) {
+      if (!fechaInput.value || !horaInput.value || !personasInput.value) {
+        return;
+      }
+
+      if (tablesContainer.style.display === 'block' && !mesaSelect.value) {
+        event.preventDefault();
+        if (typeof showError === 'function') showError('Selecciona una mesa antes de guardar los cambios.');
+        else alert('Selecciona una mesa antes de guardar los cambios.');
+        return;
+      }
+      // Form will submit normally
     }
 
     fechaInput.addEventListener('change', loadAvailableTables);
     horaInput.addEventListener('change', loadAvailableTables);
     personasInput.addEventListener('change', loadAvailableTables);
+    reservationForm.addEventListener('submit', validateReservationForm);
 
     window.addEventListener('load', loadAvailableTables);
   </script>

@@ -7,6 +7,7 @@
 :root {
   --primary-color: #2c3e50;
   --secondary-color: #e74c3c;
+
   --success-color: #27ae60;
   --danger-color: #e74c3c;
   --info-color: #3498db;
@@ -34,14 +35,23 @@ body {
 .navbar {
   background: linear-gradient(90deg, #1f2d3e 0%, #293f56 100%);
   color: white;
-  padding: 0.8rem 1.5rem;
+  padding: 0.8rem 0;
   box-shadow: var(--box-shadow);
   position: sticky;
   top: 0;
   z-index: 100;
+}
+
+.navbar .navbar-container {
   display: flex;
   align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
   gap: 1.5rem;
+  width: 100%;
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 0 1.5rem;
 }
 
 .nav-left {
@@ -54,11 +64,43 @@ body {
   font-size: 1.4rem;
   font-weight: 700;
   letter-spacing: 0.02em;
-  display: block;
+  display: inline-block;
 }
 
 .navbar-brand:hover {
   color: var(--secondary-color);
+}
+
+.navbar-menu {
+  display: flex;
+  gap: 0.75rem;
+  align-items: center;
+  flex-wrap: wrap;
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+.navbar-menu li {
+  list-style: none;
+}
+
+.navbar-menu li a,
+.navbar-menu li span {
+  color: white;
+  text-decoration: none;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0.55rem 0.9rem;
+  border-radius: 999px;
+  transition: background-color 0.3s ease, transform 0.2s ease;
+}
+
+.navbar-menu li a:hover,
+.navbar-menu li span:hover {
+  background: rgba(255, 255, 255, 0.15);
+  transform: translateY(-1px);
 }
 
 .nav-center {
@@ -170,6 +212,28 @@ body {
   padding: 0.4rem 0.8rem;
   font-size: 0.9rem;
   margin: 0.2rem;
+}
+
+.export-actions {
+  display: flex;
+  gap: 0.75rem;
+  flex-wrap: wrap;
+  margin: 1rem 0 2rem;
+}
+
+@media print {
+  .btn,
+  .filter-form,
+  .export-actions,
+  footer,
+  .navbar,
+  .hide-on-print {
+    display: none !important;
+  }
+
+  body {
+    background: white;
+  }
 }
 
 /* Formularios */
@@ -303,9 +367,113 @@ body {
   max-width: 400px;
 }
 
+.filter-form {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 1rem;
+  margin-bottom: 1.5rem;
+  padding: 1rem;
+  background-color: white;
+  border-radius: var(--border-radius);
+  box-shadow: var(--box-shadow);
+}
+
+.filter-form,
+.filters-container {
+  display: flex;
+  align-items: flex-end;
+  gap: 1rem;
+  margin-bottom: 1.5rem;
+  padding: 1rem;
+  background-color: white;
+  border-radius: var(--border-radius);
+  box-shadow: var(--box-shadow);
+  flex-wrap: wrap;
+}
+
+.filters-container {
+  gap: 20px;
+}
+
+.filter-group,
+.filter-form .form-group {
+  display: flex;
+  flex-direction: column;
+  flex: 1 1 220px;
+  min-width: 160px;
+}
+
+/* Alineación y tamaño uniforme para inputs, selects y botones */
+.filter-group input,
+.filter-group select,
+.filter-actions .btn,
+.filters-container input,
+.filters-container select {
+  height: 50px;
+  padding: 0.5rem 0.75rem;
+  border-radius: var(--border-radius);
+  font-size: 1rem;
+}
+
+.filter-actions {
+  display: flex;
+  gap: 15px;
+  align-items: flex-end;
+}
+
+.filter-actions .btn {
+  height: 50px;
+  min-width: 150px;
+  border-radius: 8px;
+  padding: 0 1rem;
+}
+
+/* Mantener responsive: cuando el espacio sea limitado, los botones se colocan en la siguiente fila */
+@media (max-width: 640px) {
+  .filters-container {
+    align-items: stretch;
+  }
+  .filter-group,
+  .filter-actions {
+    flex: 1 1 100%;
+  }
+  .filter-actions {
+    justify-content: flex-start;
+  }
+}
+.form-note {
+  display: block;
+  margin-top: 0.25rem;
+  font-size: 0.9rem;
+  color: #666;
+}
+
+.alert-inline {
+  display: block;
+  width: 100%;
+  margin-top: 0.75rem;
+}
+
 /* Tablas */
+.table-responsive {
+  width: 100%;
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+  margin-bottom: 1rem;
+}
+
+.table-responsive::-webkit-scrollbar {
+  height: 8px;
+}
+
+.table-responsive::-webkit-scrollbar-thumb {
+  background: rgba(44, 62, 80, 0.35);
+  border-radius: 999px;
+}
+
 .table {
   width: 100%;
+  min-width: 700px;
   border-collapse: collapse;
   background-color: white;
   margin-top: 1rem;
@@ -532,11 +700,51 @@ footer {
   margin-top: 3rem;
 }
 
+/* Toast notifications */
+.toast-container {
+  position: fixed;
+  right: 20px;
+  bottom: 20px;
+  z-index: 10000;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+.toast {
+  background: white;
+  color: var(--dark-color);
+  padding: 0.75rem 1rem;
+  border-radius: 8px;
+  box-shadow: var(--box-shadow);
+  transform: translateY(12px);
+  opacity: 0;
+  transition: transform 0.25s ease, opacity 0.25s ease;
+}
+.toast.visible { transform: translateY(0); opacity: 1; }
+.toast-success { border-left: 6px solid var(--success-color); }
+.toast-error { border-left: 6px solid var(--danger-color); }
+
 /* Responsive */
 @media (max-width: 768px) {
-  .navbar-menu {
+  .navbar {
     gap: 1rem;
+    padding: 1rem;
+  }
+
+  .nav-center {
+    width: 100%;
+    justify-content: center;
+  }
+
+  .navbar-menu {
+    gap: 0.9rem;
     font-size: 0.9rem;
+    justify-content: center;
+  }
+
+  .logout-btn {
+    min-width: 0;
+    align-self: flex-end;
   }
 
   .hero h1 {
@@ -553,11 +761,69 @@ footer {
 
   .table th,
   .table td {
+    padding: 0.4rem 0.5rem;
+    line-height: 1.3;
+    word-break: break-word;
+  }
+
+  .table td {
+    white-space: normal;
+  }
+
+  .table-responsive {
+    margin-bottom: 1rem;
     padding: 0.5rem;
+    background: white;
+    border-radius: var(--border-radius);
+    overflow-x: auto;
+  }
+
+  .table-responsive .table {
+    min-width: 700px;
+  }
+
+  .table-responsive .btn {
+    max-width: 100%;
+    display: inline-flex;
+    flex-wrap: wrap;
+    justify-content: center;
   }
 
   .form-container {
     margin: 1rem;
+    padding: 1rem;
+  }
+
+  .filter-form {
+    flex-direction: column;
+    padding: 1rem;
+  }
+
+  .btn {
+    width: auto;
+    max-width: 100%;
+  }
+
+  .btn-small,
+  .table-actions .btn {
+    width: auto;
+    white-space: normal;
+    margin: 0.15rem 0.15rem 0.15rem 0;
+    padding: 0.35rem 0.7rem;
+    font-size: 0.85rem;
+  }
+
+  .btn-small + .btn-small {
+    margin-top: 0.35rem;
+  }
+
+  .filter-form .form-group {
+    width: 100%;
+  }
+
+  .profile-buttons,
+  .reserva-buttons {
+    width: 100%;
   }
 
   .admin-menu {
@@ -570,15 +836,34 @@ footer {
 }
 
 @media (max-width: 480px) {
-  .navbar .container {
+  .navbar {
     flex-direction: column;
-    gap: 1rem;
+    align-items: stretch;
+    padding: 1rem;
+  }
+
+  .nav-left,
+  .nav-center,
+  .logout-btn {
+    width: 100%;
+  }
+
+  .nav-center {
+    justify-content: center;
+    margin: 0;
   }
 
   .navbar-menu {
     flex-direction: column;
     gap: 0.5rem;
     width: 100%;
+  }
+
+  .navbar-menu li a,
+  .navbar-menu li span,
+  .logout-btn {
+    width: 100%;
+    justify-content: center;
   }
 
   .btn {

@@ -14,7 +14,14 @@
       <h1>Iniciar Sesión</h1>
 
       <% if (error) { %>
-        <div class="alert alert-danger"><%= error %></div>
+        <script>
+          (function () {
+            const message = <%- JSON.stringify(error) %>;
+            const display = () => { if (typeof showError === 'function') showError(message); };
+            if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', display);
+            else display();
+          })();
+        </script>
       <% } %>
 
       <form method="POST" action="/login" class="auth-form">
@@ -36,7 +43,7 @@
   </div>
 
   <footer>
-    <p>&copy; 2024 Sistema de Reservas - Todos los derechos reservados</p>
+    <p>&copy; 2026 Sistema de Reservas - Todos los derechos reservados</p>
   </footer>
 </body>
 </html>

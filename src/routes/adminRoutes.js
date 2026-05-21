@@ -23,5 +23,8 @@ router.get('/reservations/by-date', isAuthenticated, isAdmin, adminController.ge
 
 // Gestionar mesas
 router.get('/tables', isAuthenticated, isAdmin, adminController.getTables);
+router.post('/tables', isAuthenticated, isAdmin, adminController.createTable);
+router.post('/tables/:mesaId', isAuthenticated, isAdmin, adminController.updateTable);
+router.get('/tables/delete/:mesaId', isAuthenticated, isAdmin, adminController.deleteTable);
 
 module.exports = router;

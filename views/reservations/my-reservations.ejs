@@ -10,19 +10,129 @@
   <%- include('../partials/navbar') %>
 
   <div class="container">
+    <% function formatTime12(time) {
+      if (!time) return '';
+      const [hour, minute] = String(time).split(':');
+      let h = parseInt(hour, 10);
+      if (Number.isNaN(h)) return time;
+      const suffix = h >= 12 ? 'PM' : 'AM';
+      if (h === 0) h = 12;
+      else if (h > 12) h -= 12;
+      return `${h}:${minute} ${suffix}`;
+    } %>
     <h1>Mis Reservas</h1>
 
+    <% 
+      const csvParams = [];
+      if (filters && filters.fecha) csvParams.push(`fecha=${filters.fecha}`);
+      if (filters && filters.estado) csvParams.push(`estado=${filters.estado}`);
+      if (filters && filters.mesa) csvParams.push(`mesa=${filters.mesa}`);
+      const csvQueryString = csvParams.length ? `?${csvParams.join('&')}` : '';
+    %>
+
+    <form method="GET" action="/reservations/my-reservations" class="filter-form filters-container">
+      <div class="form-group filter-group">
+        <label for="fecha">Fecha:</label>
+        <input type="date" id="fecha" name="fecha" value="<%= filters ? filters.fecha : '' %>">
+      </div>
+
+      <div class="form-group filter-group">
+        <label for="estado">Estado:</label>
+        <select id="estado" name="estado">
+          <option value="todos" <%= filters && filters.estado === 'todos' ? 'selected' : '' %>>Todos</option>
+          <option value="pendiente" <%= filters && filters.estado === 'pendiente' ? 'selected' : '' %>>Pendiente</option>
+          <option value="confirmada" <%= filters && filters.estado === 'confirmada' ? 'selected' : '' %>>Confirmada</option>
+          <option value="completada" <%= filters && filters.estado === 'completada' ? 'selected' : '' %>>Completada</option>
+          <option value="cancelada" <%= filters && filters.estado === 'cancelada' ? 'selected' : '' %>>Cancelada</option>
+        </select>
+      </div>
+
+      <div class="form-group filter-group">
+        <label for="mesa">Mesa:</label>
+        <input type="text" id="mesa" name="mesa" placeholder="Número de mesa" value="<%= filters ? filters.mesa : '' %>">
+      </div>
+      <div class="filter-actions">
+        <button type="submit" class="btn btn-secondary">Filtrar</button>
+        <a href="/reservations/my-reservations" class="btn btn-secondary">Limpiar</a>
+      </div>
+    </form>
+
+    <div class="export-actions">
+      <a href="/reservations/export/csv<%= csvQueryString %>" class="btn btn-primary">Exportar CSV</a>
+      <button type="button" class="btn btn-secondary" onclick="window.print()">Imprimir</button>
+    </div>
+
+    <% if (typeof query !== 'undefined' && query && query.message) { %>
+      <script>
+        document.addEventListener('DOMContentLoaded', function () {
+          if (typeof showSuccess === 'function') showSuccess(<%= JSON.stringify(query.message) %>);
+        });
+      </script>
+    <% } %>
+
     <% if (message) { %>
-      <div class="alert alert-success"><%= message %></div>
+      <script>
+        document.addEventListener('DOMContentLoaded', function () {
+          if (typeof showSuccess === 'function') showSuccess(<%= JSON.stringify(message) %>);
+        });
+      </script>
     <% } %>
     <% if (error) { %>
-      <div class="alert alert-danger"><%= error %></div>
+      <script>
+        (function () {
+          const message = <%= JSON.stringify(error) %>;
+          const display = () => { if (typeof showError === 'function') showError(message); };
+          if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', display);
+          else display();
+        })();
+      </script>
     <% } %>
 
     <a href="/reservations/new" class="btn btn-primary">Nueva Reserva</a>
 
-    <% if (reservations.length > 0) { %>
-      <table class="table">
+    <% if (upcomingReservations.length > 0) { %>
+      <h2>Próximas Reservas</h2>
+      <div class="table-responsive">
+        <table class="table">
+          <thead>
+          <tr>
+            <th>Fecha</th>
+            <th>Hora</th>
+            <th>Mesa</th>
+            <th>Personas</th>
+            <th>Estado</th>
+            <th class="hide-on-print">Acciones</th>
+            <th class="hide-on-print">Exportar</th>
+          </tr>
+        </thead>
+        <tbody>
+          <% upcomingReservations.forEach(reservation => { %>
+            <tr>
+              <td><%= reservation.fecha_reserva.toISOString().split('T')[0] %></td>
+              <td><%= formatTime12(reservation.hora_reserva) %></td>
+              <td><%= reservation.numero_mesa %></td>
+              <td><%= reservation.numero_personas %></td>
+              <td><span class="status-<%= reservation.estado %>"><%= reservation.estado %></span></td>
+              <td class="hide-on-print">
+                <% if (reservation.estado === 'pendiente' || reservation.estado === 'confirmada') { %>
+                  <a href="/reservations/edit/<%= reservation.id %>" class="btn btn-small btn-secondary">Editar</a>
+                  <a href="/reservations/cancel/<%= reservation.id %>" class="btn btn-small btn-danger" onclick="return confirm('¿Estás seguro de que quieres cancelar esta reserva?')">Cancelar</a>
+                <% } %>
+              </td>
+              <td class="hide-on-print">
+                <a href="/reservations/export/pdf/<%= reservation.id %>" class="btn btn-small btn-primary" target="_blank">PDF</a>
+              </td>
+            </tr>
+          <% }); %>
+        </tbody>
+        </table>
+      </div>
+    <% } %>
+
+    <% if (historyReservations.length > 0) { %>
+      <h2>Historial de Reservas</h2>
+      <div class="table-responsive">
+        <table class="table">
         <thead>
           <tr>
             <th>Fecha</th>
@@ -30,29 +140,29 @@
             <th>Mesa</th>
             <th>Personas</th>
             <th>Estado</th>
-            <th>Acciones</th>
+            <th class="hide-on-print">Exportar</th>
           </tr>
         </thead>
         <tbody>
-          <% reservations.forEach(reservation => { %>
+          <% historyReservations.forEach(reservation => { %>
             <tr>
               <td><%= reservation.fecha_reserva.toISOString().split('T')[0] %></td>
-              <td><%= reservation.hora_reserva %></td>
+              <td><%= formatTime12(reservation.hora_reserva) %></td>
               <td><%= reservation.numero_mesa %></td>
               <td><%= reservation.numero_personas %></td>
               <td><span class="status-<%= reservation.estado %>"><%= reservation.estado %></span></td>
-              <td>
-                <% if (reservation.estado === 'pendiente' || reservation.estado === 'confirmada') { %>
-                  <a href="/reservations/edit/<%= reservation.id %>" class="btn btn-small btn-secondary">Editar</a>
-                  <a href="/reservations/cancel/<%= reservation.id %>" class="btn btn-small btn-danger" onclick="return confirm('¿Estás seguro de que quieres cancelar esta reserva?')">Cancelar</a>
-                <% } %>
+              <td class="hide-on-print">
+                <a href="/reservations/export/pdf/<%= reservation.id %>" class="btn btn-small btn-primary" target="_blank">PDF</a>
               </td>
             </tr>
           <% }); %>
         </tbody>
-      </table>
-    <% } else { %>
-      <p>No tienes reservas. <a href="/reservations/new">Haz tu primera reserva</a></p>
+        </table>
+      </div>
+    <% } %>
+
+    <% if (upcomingReservations.length === 0 && historyReservations.length === 0) { %>
+      <p>No tienes reservas con esos filtros. <a href="/reservations/new">Haz tu primera reserva</a></p>
     <% } %>
   </div>
 

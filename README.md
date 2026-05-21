@@ -1,265 +1,203 @@
 # Sistema de Reservas de Restaurante
 
-Un sistema completo de reservas para restaurante construido con **Node.js**, **Express.js**, **EJS**, y **MySQL**.
+Un sistema de reservas completo para restaurante construido con **Node.js**, **Express.js**, **EJS** y **MySQL**.
 
-## Características
+## Características actuales
 
-✅ **Autenticación de Usuarios**
-- Registro e inicio de sesión seguros
-- Contraseñas encriptadas con bcrypt
+✅ **Autenticación y roles**
+- Registro e inicio de sesión de usuarios
+- Contraseñas seguras con bcrypt
+- Roles `client` y `admin`
+- Panel de administrador separado
 
-✅ **Gestión de Reservas**
-- Crear nuevas reservas
-- Ver historial de reservas personales
-- Cancelar reservas
+✅ **Gestión de reservas**
+- Crear nuevas reservas con selección de mesa disponible
+- Ver reservas propias y su historial
+- Cancelar reservas directamente desde la vista del usuario
+- Exportar reservas a CSV y PDF
 
-✅ **Panel de Administración**
+✅ **Panel de administración mejorado**
 - Ver todas las reservas del sistema
-- Confirmar, completar o cancelar reservas
-- Gestionar disponibilidad de mesas
+- Confirmar, completar y cancelar reservas
 - Filtrar reservas por fecha
-- Dashboard con estadísticas
+- Dashboard con estadísticas de reservas, mesas y usuarios
 
-✅ **Disponibilidad de Mesas**
-- Sistema inteligente de búsqueda de mesas disponibles
-- Verificación automática de conflictos
-- Filtrado por capacidad
+✅ **Gestión completa de mesas**
+- Crear, editar y eliminar mesas desde el panel admin
+- Mostrar capacidad y ocupación actual
+- Indicadores de estado de mesa (`disponible`, `reservada`, `ocupada`)
 
-✅ **Interfaz Responsiva**
-- Diseño mobile-friendly
-- Interfaz intuitiva y fácil de usar
+✅ **Notificaciones tipo toast**
+- Mensajes de confirmación y error en UI con toasts
+- Eliminación de alertas estáticas para una experiencia más limpia
 
-## Requisitos Previos
+✅ **Interfaz responsiva**
+- Diseño adaptado a dispositivos móviles
+- Scroll horizontal seguro en tablas en dispositivos pequeños
+- Menús y formularios adaptativos
 
-Antes de empezar, asegúrate de tener instalado:
+## Stack tecnológico
 
-- **Node.js** (versión 14 o superior)
-- **npm** (gestor de paquetes de Node.js)
-- **MySQL** (versión 5.7 o superior)
+- Node.js
+- Express.js
+- EJS
+- MySQL
+- bcrypt
+- express-session
+- mysql2
+- express-validator
+- pdfkit
+- dotenv
+
+## Requisitos previos
+
+Asegúrate de tener instalado:
+
+- **Node.js** (v14+)
+- **npm**
+- **MySQL**
 
 ## Instalación
 
-### 1. Clonar o Descargar el Proyecto
+1. Clona o abre el proyecto:
 
 ```bash
-cd Proyecto-de-Curso
+cd "Proyecto-de-Curso"
 ```
 
-### 2. Instalar Dependencias
+2. Instala dependencias:
 
 ```bash
 npm install
 ```
 
-Las siguientes dependencias se instalarán:
-- **express**: Framework web
-- **mysql2**: Driver de MySQL
-- **ejs**: Motor de plantillas
-- **bcrypt**: Encriptación de contraseñas
-- **express-session**: Gestión de sesiones
-- **dotenv**: Variables de entorno
-- **cookie-parser**: Parseo de cookies
-- **nodemon**: Herramienta de desarrollo (dev)
+3. Configura la base de datos
 
-### 3. Configurar la Base de Datos
+Puedes usar los scripts SQL incluidos en la carpeta `database/` para crear la base de datos y las tablas.
 
-#### Crear la base de datos en MySQL:
+4. Configura variables de entorno
 
-```sql
-CREATE DATABASE restaurant_reservations;
-```
-
-#### O utilizar el script SQL incluido (opcional):
-
-```bash
-mysql -u root -p < database/init.sql
-```
-
-### 4. Configurar Variables de Entorno
-
-Copia el archivo `.env.example` a `.env`:
+Copia `.env.example` a `.env`:
 
 ```bash
 cp .env.example .env
 ```
 
-Edita el archivo `.env` con tus configuraciones:
+Edita el archivo `.env` con tus datos:
 
 ```env
-# Configuración de Base de Datos
 DB_HOST=localhost
 DB_USER=root
 DB_PASSWORD=tu_contraseña
 DB_NAME=restaurant_reservations
 DB_PORT=3306
-
-# Configuración del Servidor
 PORT=3000
 NODE_ENV=development
-
-# Sesiones
 SESSION_SECRET=tu_clave_secreta_aqui
 ```
 
-**Nota**: Asegúrate de cambiar `SESSION_SECRET` en producción.
+## Configurar usuario admin
 
-## Ejecutar la Aplicación
+Si necesitas crear o actualizar un admin, ejecuta:
 
-### Modo Desarrollo (con auto-recarga)
+```bash
+node setup-admin.js
+```
+
+El script crea o actualiza el usuario con email `brian@email.com`, contraseña `123456` y rol `admin`.
+
+## Ejecución
+
+### Modo desarrollo
 
 ```bash
 npm run dev
 ```
 
-### Modo Producción
+### Modo producción
 
 ```bash
 npm start
 ```
 
-La aplicación estará disponible en `http://localhost:3000`
+Abre `http://localhost:3000` en tu navegador.
 
-## Estructura del Proyecto
+## Estructura del proyecto
 
 ```
 Proyecto-de-Curso/
 ├── src/
-│   ├── index.js                 # Archivo principal del servidor
+│   ├── index.js
 │   ├── config/
-│   │   └── database.js          # Configuración de conexión MySQL
-│   ├── models/
-│   │   ├── database.js          # Inicialización de tablas
-│   │   ├── User.js              # Modelo de usuarios
-│   │   ├── Reservation.js       # Modelo de reservas
-│   │   └── Table.js             # Modelo de mesas
+│   │   └── database.js
 │   ├── controllers/
-│   │   ├── authController.js    # Lógica de autenticación
-│   │   ├── reservationController.js # Lógica de reservas
-│   │   └── adminController.js   # Lógica de admin
-│   ├── routes/
-│   │   ├── authRoutes.js        # Rutas de autenticación
-│   │   ├── reservationRoutes.js # Rutas de reservas
-│   │   └── adminRoutes.js       # Rutas de admin
-│   └── middleware/
-│       └── auth.js              # Middleware de autenticación
+│   │   ├── adminController.js
+│   │   ├── authController.js
+│   │   └── reservationController.js
+│   ├── middleware/
+│   │   └── auth.js
+│   ├── models/
+│   │   ├── database.js
+│   │   ├── Reservation.js
+│   │   ├── Table.js
+│   │   └── User.js
+│   └── routes/
+│       ├── adminRoutes.js
+│       ├── authRoutes.js
+│       └── reservationRoutes.js
 ├── views/
-│   ├── index.ejs                # Página de inicio
-│   ├── login.ejs                # Página de login
-│   ├── register.ejs             # Página de registro
+│   ├── admin/
+│   │   ├── dashboard.ejs
+│   │   ├── reservations-by-date.ejs
+│   │   ├── reservations-list.ejs
+│   │   └── tables-management.ejs
 │   ├── partials/
-│   │   └── navbar.ejs           # Barra de navegación
+│   │   └── navbar.ejs
 │   ├── reservations/
-│   │   ├── new.ejs              # Crear nueva reserva
-│   │   ├── my-reservations.ejs  # Ver mis reservas
-│   │   └── success.ejs          # Confirmación de reserva
-│   └── admin/
-│       ├── dashboard.ejs        # Dashboard admin
-│       ├── reservations-list.ejs # Listar todas las reservas
-│       ├── reservations-by-date.ejs # Reservas por fecha
-│       └── tables-management.ejs # Gestionar mesas
+│   │   ├── edit.ejs
+│   │   ├── my-reservations.ejs
+│   │   ├── new.ejs
+│   │   └── success.ejs
+│   ├── login.ejs
+│   ├── register.ejs
+│   ├── profile.ejs
+│   └── index.ejs
 ├── public/
 │   ├── css/
-│   │   └── style.css            # Estilos CSS
+│   │   └── style.css
 │   └── js/
-│       └── (scripts JavaScript si es necesario)
-├── package.json                 # Dependencias del proyecto
-├── .env.example                 # Ejemplo de variables de entorno
-├── .gitignore                   # Archivos a ignorar en Git
-└── README.md                    # Este archivo
-
+│       └── app.js
+├── database/
+│   ├── init-tables.sql
+│   └── setup-database.sql
+├── package.json
+├── README.md
+├── setup-admin.js
+└── .env.example
 ```
 
-## Uso de la Aplicación
+## Uso de la aplicación
 
-### Para Clientes
+### Cliente
 
-1. **Registrarse**: Ve a `/register` y crea una cuenta
-2. **Iniciar Sesión**: Inicia sesión con tus credenciales
-3. **Nueva Reserva**: Ve a "Nueva Reserva" y sigue estos pasos:
-   - Selecciona la fecha
-   - Selecciona la hora
-   - Indica el número de personas
-   - Selecciona una mesa disponible
-   - Agrega observaciones si es necesario
-   - Confirma la reserva
-4. **Ver Reservas**: Ve a "Mis Reservas" para ver todas tus reservas
-5. **Cancelar Reserva**: En "Mis Reservas", puedes cancelar reservas pendientes o confirmadas
+1. Regístrate en `/register`
+2. Inicia sesión en `/login`
+3. Crea nuevas reservas en `/reservations/new`
+4. Revisa tus reservas en `/reservations/my-reservations`
+5. Cancela reservas pendientes o confirmadas
 
-### Para Administradores
+### Administrador
 
-**Acceso al Panel Admin**:
-- El acceso se otorga directamente en la base de datos
-- Modifica el rol del usuario a `'admin'` en la tabla `users`:
+1. Accede al panel en `/admin/dashboard`
+2. Gestiona reservas y mesas
+3. Confirma, completa o cancela reservas
+4. Filtra reservas por fecha
 
-```sql
-UPDATE users SET rol = 'admin' WHERE email = 'tu_email@example.com';
-```
+## Notas adicionales
 
-**Funciones del Admin**:
-1. **Dashboard**: Ver estadísticas generales
-2. **Gestionar Reservas**: 
-   - Ver todas las reservas
-   - Confirmar reservas pendientes
-   - Marcar como completadas
-   - Cancelar reservas
-3. **Ver por Fecha**: Filtrar reservas por fecha específica
-4. **Gestionar Mesas**: Ver todas las mesas y su estado
-
-## Credenciales de Prueba
-
-Para probar la aplicación, puedes usar estas credenciales después de registrarte:
-
-- **Usuario**: Tu email registrado
-- **Contraseña**: La que ingresaste al registrarte
-
-## Tablas de la Base de Datos
-
-### Tabla `users`
-```sql
-CREATE TABLE users (
-  id INT AUTO_INCREMENT PRIMARY KEY,
-  nombre VARCHAR(100) NOT NULL,
-  email VARCHAR(100) UNIQUE NOT NULL,
-  telefono VARCHAR(20),
-  password VARCHAR(255) NOT NULL,
-  rol ENUM('client', 'admin') DEFAULT 'client',
-  creado_en TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-  actualizado_en TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
-);
-```
-
-### Tabla `mesas`
-```sql
-CREATE TABLE mesas (
-  id INT AUTO_INCREMENT PRIMARY KEY,
-  numero_mesa INT UNIQUE NOT NULL,
-  capacidad INT NOT NULL,
-  ubicacion VARCHAR(50),
-  estado ENUM('disponible', 'ocupada', 'reservada') DEFAULT 'disponible',
-  creado_en TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-);
-```
-
-### Tabla `reservas`
-```sql
-CREATE TABLE reservas (
-  id INT AUTO_INCREMENT PRIMARY KEY,
-  usuario_id INT NOT NULL,
-  mesa_id INT NOT NULL,
-  fecha_reserva DATE NOT NULL,
-  hora_reserva TIME NOT NULL,
-  numero_personas INT NOT NULL,
-  observaciones TEXT,
-  estado ENUM('pendiente', 'confirmada', 'cancelada', 'completada') DEFAULT 'pendiente',
-  creado_en TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-  actualizado_en TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
-  FOREIGN KEY (usuario_id) REFERENCES users(id) ON DELETE CASCADE,
-  FOREIGN KEY (mesa_id) REFERENCES mesas(id) ON DELETE CASCADE,
-  INDEX(fecha_reserva),
-  INDEX(usuario_id),
-  UNIQUE KEY unique_mesa_datetime (mesa_id, fecha_reserva, hora_reserva)
-);
-```
+- La interfaz usa notificaciones tipo toast para mensajes de éxito y error.
+- Las tablas grandes mantienen scroll horizontal en móviles.
+- El panel admin permite CRUD completo de mesas con indicadores de ocupación.
 
 ## Pruebas Rápidas
 

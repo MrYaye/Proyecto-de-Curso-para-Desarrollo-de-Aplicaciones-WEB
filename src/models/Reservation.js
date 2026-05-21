@@ -166,6 +166,7 @@ module.exports = {
   getReservationsByUser,
   getAvailableTables,
   createReservation,
+  updateReservation,
   updateReservationStatus,
   cancelReservation,
   getReservationById

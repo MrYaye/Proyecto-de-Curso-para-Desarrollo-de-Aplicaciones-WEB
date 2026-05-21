@@ -14,22 +14,51 @@
       <h1>Mi Perfil</h1>
 
       <% if (typeof messageProfile !== 'undefined' && messageProfile) { %>
-        <div class="alert alert-success"><%= messageProfile %></div>
+        <script>
+          document.addEventListener('DOMContentLoaded', function () {
+            if (typeof showSuccess === 'function') showSuccess(<%- JSON.stringify(messageProfile) %>);
+          });
+        </script>
       <% } %>
       <% if (typeof messagePassword !== 'undefined' && messagePassword) { %>
-        <div class="alert alert-success"><%= messagePassword %></div>
+        <script>
+          document.addEventListener('DOMContentLoaded', function () {
+            if (typeof showSuccess === 'function') showSuccess(<%- JSON.stringify(messagePassword) %>);
+          });
+        </script>
       <% } %>
       <% if (typeof errorProfile !== 'undefined' && errorProfile) { %>
-        <div class="alert alert-danger"><%= errorProfile %></div>
+        <script>
+          (function () {
+            const message = <%- JSON.stringify(errorProfile) %>;
+            const display = () => { if (typeof showError === 'function') showError(message); };
+            if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', display);
+            else display();
+          })();
+        </script>
       <% } %>
       <% if (typeof errorPassword !== 'undefined' && errorPassword) { %>
-        <div class="alert alert-danger"><%= errorPassword %></div>
+        <script>
+          (function () {
+            const message = <%- JSON.stringify(errorPassword) %>;
+            const display = () => { if (typeof showError === 'function') showError(message); };
+            if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', display);
+            else display();
+          })();
+        </script>
       <% } %>
       <% if (typeof error !== 'undefined' && error) { %>
-        <div class="alert alert-danger"><%= error %></div>
+        <script>
+          (function () {
+            const message = <%- JSON.stringify(error) %>;
+            const display = () => { if (typeof showError === 'function') showError(message); };
+            if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', display);
+            else display();
+          })();
+        </script>
       <% } %>
 
-      <form method="POST" action="/profile" class="auth-form">
+      <form method="POST" action="/profile" class="auth-form" id="profileForm">
         <div class="form-group">
           <label for="nombre">Nombre Completo:</label>
           <input type="text" id="nombre" name="nombre" value="<%= user ? user.nombre : '' %>" required>
@@ -54,7 +83,7 @@
 
         <div class="form-container">
           <h2>Cambiar contraseña</h2>
-          <form method="POST" action="/profile" class="auth-form">
+          <form method="POST" action="/profile" class="auth-form" id="passwordForm">
             <div class="form-group">
               <label for="currentPassword">Contraseña actual:</label>
               <input type="password" id="currentPassword" name="currentPassword" autocomplete="current-password">
@@ -78,8 +107,51 @@
     </div>
   </div>
 
+  <script>
+    const passwordForm = document.getElementById('passwordForm');
+    const currentPassword = document.getElementById('currentPassword');
+    const newPassword = document.getElementById('newPassword');
+    const confirmNewPassword = document.getElementById('confirmNewPassword');
+
+    function showPasswordError(message) {
+      if (!message) return;
+      if (typeof showError === 'function') showError(message);
+      else alert(message);
+    }
+
+    passwordForm.addEventListener('submit', (event) => {
+      const current = currentPassword.value.trim();
+      const next = newPassword.value.trim();
+      const confirm = confirmNewPassword.value.trim();
+
+      if (!current && !next && !confirm) {
+        return;
+      }
+
+      if (!current || !next || !confirm) {
+        event.preventDefault();
+        showPasswordError('Completa los tres campos para cambiar la contraseña.');
+        return;
+      }
+
+      if (next.length < 8) {
+        event.preventDefault();
+        showPasswordError('La nueva contraseña debe tener al menos 8 caracteres.');
+        return;
+      }
+
+      if (next !== confirm) {
+        event.preventDefault();
+        showPasswordError('Las nuevas contraseñas no coinciden.');
+        return;
+      }
+
+      showPasswordError('');
+    });
+  </script>
+
   <footer>
-    <p>&copy; 2024 Sistema de Reservas - Todos los derechos reservados</p>
+    <p>&copy; 2026 Sistema de Reservas - Todos los derechos reservados</p>
   </footer>
 </body>
 </html>
