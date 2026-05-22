@@ -23,10 +23,14 @@
 
     <a href="/admin/dashboard" class="btn btn-secondary">Volver al Dashboard</a>
 
-    <div class="form-group">
-      <label for="fecha">Seleccionar Fecha:</label>
-      <input type="date" id="fecha" name="fecha" value="<%= fecha %>">
-      <button type="submit" class="btn btn-primary" onclick="filterByDate()">Filtrar</button>
+    <div class="filter-section filters-container">
+      <div class="filter-group">
+        <label for="fecha">Seleccionar Fecha:</label>
+        <input type="date" id="fecha" name="fecha" class="filter-input" value="<%= fecha %>">
+      </div>
+      <div class="filter-actions">
+        <button type="button" class="btn btn-primary" onclick="filterByDate()">Filtrar</button>
+      </div>
     </div>
 
     <h2>Reservas del <%= fecha %></h2>

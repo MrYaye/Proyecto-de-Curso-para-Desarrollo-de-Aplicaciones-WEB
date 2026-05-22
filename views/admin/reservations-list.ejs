@@ -31,6 +31,33 @@
 
     <a href="/admin/dashboard" class="btn btn-secondary">Volver al Dashboard</a>
 
+    <!-- Filtros -->
+    <div class="filter-section filters-container">
+      <h3>Filtros</h3>
+      <div class="filter-group">
+        <label for="filterDate">Filtrar por fecha:</label>
+        <input type="date" id="filterDate" class="filter-input">
+      </div>
+      <div class="filter-group">
+        <label for="filterStatus">Filtrar por estado:</label>
+        <select id="filterStatus" class="filter-input">
+          <option value="">Todos los estados</option>
+          <option value="pendiente">Pendiente</option>
+          <option value="confirmada">Confirmada</option>
+          <option value="completada">Completada</option>
+          <option value="cancelada">Cancelada</option>
+        </select>
+      </div>
+      <div class="filter-group">
+        <label for="searchClient">Buscar cliente:</label>
+        <input type="text" id="searchClient" class="filter-input" placeholder="Nombre o email">
+      </div>
+      <div class="filter-actions">
+        <button type="button" class="btn btn-primary" onclick="applyFilters()">Filtrar</button>
+        <button type="button" class="btn btn-secondary" onclick="clearFilters()">Limpiar</button>
+      </div>
+    </div>
+
     <% if (reservations.length > 0) { %>
       <div class="table-responsive">
         <table class="table">
@@ -53,7 +80,7 @@
               <td><%= reservation.nombre %></td>
               <td><%= reservation.email %></td>
               <td><%= reservation.telefono %></td>
-              <td><%= reservation.fecha_reserva.toISOString().split('T')[0] %></td>
+              <td><%= reservation.fecha_reserva %></td>
               <td><%= formatTime12(reservation.hora_reserva) %></td>
               <td><%= reservation.numero_mesa %></td>
               <td><%= reservation.numero_personas %></td>
@@ -82,5 +109,83 @@
   <footer>
     <p>&copy; 2024 Sistema de Reservas - Todos los derechos reservados</p>
   </footer>
+
+  <script>
+    // Guardar datos originales de reservas
+    const allReservations = <%- JSON.stringify(reservations) %>;
+
+    function applyFilters() {
+      const filterDate = document.getElementById('filterDate').value;
+      const filterStatus = document.getElementById('filterStatus').value;
+      const searchClient = document.getElementById('searchClient').value.toLowerCase();
+
+      const tableBody = document.querySelector('tbody');
+      if (!tableBody) return;
+
+      let visibleCount = 0;
+      const rows = tableBody.querySelectorAll('tr');
+
+      rows.forEach((row, index) => {
+        if (index >= allReservations.length) return;
+        
+        const reservation = allReservations[index];
+        if (!reservation) {
+          row.style.display = 'none';
+          return;
+        }
+
+        const reservationDate = reservation.fecha_reserva; // Es string formato YYYY-MM-DD
+        const cliente = `${reservation.nombre} ${reservation.email}`.toLowerCase();
+        const estado = reservation.estado;
+
+        let matchDate = !filterDate || reservationDate === filterDate;
+        let matchStatus = !filterStatus || estado === filterStatus;
+        let matchClient = !searchClient || cliente.includes(searchClient);
+
+        if (matchDate && matchStatus && matchClient) {
+          row.style.display = '';
+          visibleCount++;
+        } else {
+          row.style.display = 'none';
+        }
+      });
+
+      // Mostrar/ocultar mensaje de "sin resultados"
+      const existingMessage = document.getElementById('noResults');
+      if (visibleCount === 0 && rows.length > 0) {
+        if (!existingMessage) {
+          const noResultsMsg = document.createElement('tr');
+          noResultsMsg.id = 'noResults';
+          noResultsMsg.innerHTML = '<td colspan="9" style="text-align: center; padding: 20px;">No hay reservas que coincidan con los filtros</td>';
+          tableBody.appendChild(noResultsMsg);
+        }
+      } else {
+        if (existingMessage) existingMessage.remove();
+      }
+    }
+
+    function clearFilters() {
+      document.getElementById('filterDate').value = '';
+      document.getElementById('filterStatus').value = '';
+      document.getElementById('searchClient').value = '';
+      
+      const rows = document.querySelectorAll('tbody tr');
+      rows.forEach(row => row.style.display = '');
+      
+      const noResultsMsg = document.getElementById('noResults');
+      if (noResultsMsg) noResultsMsg.remove();
+    }
+
+    // Filtrar en tiempo real mientras se escribe
+    document.addEventListener('DOMContentLoaded', function() {
+      const searchInput = document.getElementById('searchClient');
+      const dateInput = document.getElementById('filterDate');
+      const statusInput = document.getElementById('filterStatus');
+      
+      if (searchInput) searchInput.addEventListener('keyup', applyFilters);
+      if (dateInput) dateInput.addEventListener('change', applyFilters);
+      if (statusInput) statusInput.addEventListener('change', applyFilters);
+    });
+  </script>
 </body>
 </html>

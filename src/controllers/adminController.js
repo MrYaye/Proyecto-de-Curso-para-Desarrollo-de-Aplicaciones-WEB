@@ -13,7 +13,7 @@ const getAdminDashboard = async (req, res) => {
       reservations: reservations.slice(0, 10),
       tables,
       users: users.length,
-      user: { id: req.session.userId, nombre: req.session.userName }
+      user: { id: req.session.userId, nombre: req.session.userName, rol: req.session.userRole }
     });
   } catch (error) {
     console.error('Error:', error);
@@ -26,10 +26,17 @@ const getAllReservations = async (req, res) => {
   try {
     const { message } = req.query;
     const reservations = await Reservation.getAllReservations();
+    
+    // Convertir fechas a strings para que JSON.stringify funcione correctamente
+    const reservationsFormatted = reservations.map(r => ({
+      ...r,
+      fecha_reserva: r.fecha_reserva ? r.fecha_reserva.toISOString().split('T')[0] : ''
+    }));
+    
     res.render('admin/reservations-list', {
-      reservations,
+      reservations: reservationsFormatted,
       message: message || null,
-      user: { id: req.session.userId, nombre: req.session.userName }
+      user: { id: req.session.userId, nombre: req.session.userName, rol: req.session.userRole }
     });
   } catch (error) {
     console.error('Error:', error);
@@ -91,7 +98,7 @@ const getTables = async (req, res) => {
       tables: tables.map(t => ({ ...t, reservas_activas: occupancyMap[t.id] || 0 })),
       message: message || null,
       error: error || null,
-      user: { id: req.session.userId, nombre: req.session.userName }
+      user: { id: req.session.userId, nombre: req.session.userName, rol: req.session.userRole }
     });
   } catch (error) {
     console.error('Error:', error);
@@ -159,7 +166,7 @@ const getReservationsByDate = async (req, res) => {
     res.render('admin/reservations-by-date', {
       reservations: filteredReservations,
       fecha,
-      user: { id: req.session.userId, nombre: req.session.userName }
+      user: { id: req.session.userId, nombre: req.session.userName, rol: req.session.userRole }
     });
   } catch (error) {
     console.error('Error:', error);

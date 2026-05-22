@@ -1,7 +1,11 @@
 ﻿<nav class="navbar">
   <div class="container navbar-container">
     <div class="nav-left">
-      <a href="/" class="navbar-brand">🍽️ Restaurant Reservations</a>
+      <% if (user && user.rol === 'admin') { %>
+        <a href="/admin/dashboard" class="navbar-brand">🍽️ Restaurant Reservations</a>
+      <% } else { %>
+        <a href="/" class="navbar-brand">🍽️ Restaurant Reservations</a>
+      <% } %>
     </div>
 
     <div class="nav-center">

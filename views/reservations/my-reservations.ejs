@@ -30,15 +30,16 @@
       const csvQueryString = csvParams.length ? `?${csvParams.join('&')}` : '';
     %>
 
-    <form method="GET" action="/reservations/my-reservations" class="filter-form filters-container">
+    <form method="GET" action="/reservations/my-reservations" class="filter-form filters-container filter-section">
+      <h3>Filtros</h3>
       <div class="form-group filter-group">
         <label for="fecha">Fecha:</label>
-        <input type="date" id="fecha" name="fecha" value="<%= filters ? filters.fecha : '' %>">
+        <input type="date" id="fecha" name="fecha" class="filter-input" value="<%= filters ? filters.fecha : '' %>">
       </div>
 
       <div class="form-group filter-group">
         <label for="estado">Estado:</label>
-        <select id="estado" name="estado">
+        <select id="estado" name="estado" class="filter-input">
           <option value="todos" <%= filters && filters.estado === 'todos' ? 'selected' : '' %>>Todos</option>
           <option value="pendiente" <%= filters && filters.estado === 'pendiente' ? 'selected' : '' %>>Pendiente</option>
           <option value="confirmada" <%= filters && filters.estado === 'confirmada' ? 'selected' : '' %>>Confirmada</option>
@@ -49,7 +50,7 @@
 
       <div class="form-group filter-group">
         <label for="mesa">Mesa:</label>
-        <input type="text" id="mesa" name="mesa" placeholder="Número de mesa" value="<%= filters ? filters.mesa : '' %>">
+        <input type="text" id="mesa" name="mesa" class="filter-input" placeholder="Número de mesa" value="<%= filters ? filters.mesa : '' %>">
       </div>
       <div class="filter-actions">
         <button type="submit" class="btn btn-secondary">Filtrar</button>

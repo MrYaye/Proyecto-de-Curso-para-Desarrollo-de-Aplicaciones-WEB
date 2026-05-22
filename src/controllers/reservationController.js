@@ -11,7 +11,7 @@ const showNewReservationForm = async (req, res) => {
     }
 
     res.render('reservations/new', { 
-      user: { id: userId, nombre: req.session.userName },
+      user: { id: userId, nombre: req.session.userName, rol: req.session.userRole },
       error: null,
       message: null
     });
@@ -38,7 +38,7 @@ const showEditReservationForm = async (req, res) => {
 
     res.render('reservations/edit', {
       reservation,
-      user: { id: userId, nombre: req.session.userName },
+      user: { id: userId, nombre: req.session.userName, rol: req.session.userRole },
       error: null,
       message: null
     });
@@ -75,7 +75,7 @@ const createReservation = async (req, res) => {
       return res.render('reservations/new', { 
         error: 'Todos los campos requeridos deben completarse',
         message: null,
-        user: { id: userId, nombre: req.session.userName }
+        user: { id: userId, nombre: req.session.userName, rol: req.session.userRole }
       });
     }
 
@@ -83,7 +83,7 @@ const createReservation = async (req, res) => {
     res.render('reservations/success', {
       message: 'Reserva creada exitosamente. Recibirás una confirmación en tu email.',
       error: null,
-      user: { id: userId, nombre: req.session.userName }
+      user: { id: userId, nombre: req.session.userName, rol: req.session.userRole }
     });
   } catch (error) {
     console.error('Error:', error);
@@ -93,7 +93,7 @@ const createReservation = async (req, res) => {
     res.render('reservations/new', { 
       error: errorMessage,
       message: null,
-      user: { id: userId, nombre: req.session.userName }
+      user: { id: userId, nombre: req.session.userName, rol: req.session.userRole }
     });
   }
 };
@@ -119,7 +119,7 @@ const updateReservation = async (req, res) => {
         reservation,
         error: 'Todos los campos requeridos deben completarse',
         message: null,
-        user: { id: userId, nombre: req.session.userName }
+        user: { id: userId, nombre: req.session.userName, rol: req.session.userRole }
       });
     }
 
@@ -135,7 +135,7 @@ const updateReservation = async (req, res) => {
       reservation,
       error: errorMessage,
       message: null,
-      user: { id: req.session.userId, nombre: req.session.userName }
+      user: { id: req.session.userId, nombre: req.session.userName, rol: req.session.userRole }
     });
   }
 };
@@ -176,7 +176,7 @@ const getMyReservations = async (req, res) => {
     res.render('reservations/my-reservations', {
       upcomingReservations,
       historyReservations,
-      user: { id: userId, nombre: req.session.userName },
+      user: { id: userId, nombre: req.session.userName, rol: req.session.userRole },
       error: error || null,
       message: message || null,
       filters: {
